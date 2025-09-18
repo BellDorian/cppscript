@@ -3,7 +3,6 @@
 	See LICENSE and NOTICE files for full details.
 */
 
-#pragma once
 #include "../include/cpps/String.h"
 #include "../include/cpps/detail/alias.h"
 
@@ -24,7 +23,7 @@ namespace cpps
 		: text("")
 	{ }
 
-	String::String(const String& rhs)
+	String::String(const String& rhs) noexcept
 		: text(rhs)
 	{ }
 
@@ -32,7 +31,7 @@ namespace cpps
 		: text(std::move(rhs.text))
 	{ }
 
-	String::String(const view text)
+	String::String(const view text) noexcept
 		: text(text)
 	{ }
 

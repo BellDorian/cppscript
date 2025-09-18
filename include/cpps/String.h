@@ -2,7 +2,7 @@
 #include <string>
 #include <iterator>
 
-export namespace cpps
+namespace cpps
 {
 	// Helper enum classes coupled with String	
 	enum class LexiCompare : int
@@ -648,6 +648,6 @@ export namespace cpps
 	};
 }
 
-#include "String.inl";
+//#include "String.inl";
 
 
