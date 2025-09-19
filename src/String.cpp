@@ -44,7 +44,7 @@ namespace cpps
 		text += symbol;
 	}
 
-	explicit String::String(std::string&& text) noexcept
+	String::String(std::string&& text) noexcept
 		: text(std::move(text))
 	{ }
 
@@ -60,11 +60,22 @@ namespace cpps
 		return *this;
 	}
 
-	String& String::operator=(const String& rhs) { }
+	String& String::operator=(const String& rhs) {
+		text = rhs.text;
+		return *this;
+	}
 
-	String& String::operator=(std::string_view rtext) { }
+	String& String::operator=(std::string_view rtext) {
+		text = rtext;
+		return *this;
+	}
 
-	String& String::operator=(char symbol) { }
+	String& String::operator=(char symbol) {
+		// The absence of an implicit char --> string conv. in base C++
+		// summarizes the entire language's DX approach -- and not in a good way
+		text = string{ symbol };
+		return *this;
+	}
 
 
 	// =============== EQUIVALENCE =================
@@ -108,24 +119,19 @@ namespace cpps
 
 
 	// =============== INDEXING =============
-	char& String::operator[](size_t index)
+	char& String::operator[](size_t index) noexcept
 	{
-		if (index < text.length())
-		{
-			return text[index];
-		}
-
-		throw std::out_of_range("invalid index");
+		return text[index];
 	}
 
-	char String::operator[](size_t index) const
+	char String::operator[](size_t index) const noexcept
 	{
 		return text[index];
 	}
 
 
 	// =============== CONCAT =================
-	String String::operator+(const String& rhs) const
+	String String::operator+(const String& rhs) const noexcept
 	{
 		// Call this->Std() to explictly convert String -> std::string
 		string newText = this->Std();
@@ -133,7 +139,7 @@ namespace cpps
 		return String(newText);
 	}
 
-	String String::operator+(const std::string_view rhs) const
+	String String::operator+(const std::string_view rhs) const noexcept
 	{
 		String newString(*this);
 		newString.Concat(rhs);
@@ -220,6 +226,7 @@ namespace cpps
 	char String::At(size_t index) const noexcept
 	{
 		// return Nullor<char>(text[index], index < text.length());
+		return '0';
 	}
 
 	int String::Find(char target) const noexcept
@@ -240,7 +247,7 @@ namespace cpps
 		return -1;
 	}
 
-	constexpr bool String::Includes(char target) const
+	bool String::Includes(char target) const noexcept
 	{
 		for (char i : text)
 		{
@@ -252,12 +259,12 @@ namespace cpps
 		return false;
 	}
 
-	constexpr bool String::StartsWith(std::string_view prefix) const noexcept
+	bool String::StartsWith(std::string_view prefix) const noexcept
 	{
 		return text.starts_with(prefix);
 	}
 
-	constexpr bool String::EndsWith(std::string_view suffix) const noexcept
+	bool String::EndsWith(std::string_view suffix) const noexcept
 	{
 		return text.ends_with(suffix);
 	}
@@ -265,7 +272,7 @@ namespace cpps
 
 
 	// =============== Portioning Methods ===============
-	String String::Segment(size_t start, size_t end, bool blankIfOverflow = false) const noexcept
+	String String::Segment(size_t start, size_t end, bool blankIfOverflow) const noexcept
 	{
 		// Case A: Bad range --> early return
 		// This also covers the edge case where text is empty
@@ -285,7 +292,7 @@ namespace cpps
 		}
 	}
 
-	String String::Substring(size_t start, size_t length, bool blankIfOverflow = false) const noexcept
+	String String::Substring(size_t start, size_t length, bool blankIfOverflow) const noexcept
 	{
 		// Case A: Early return for nonsense start index
 		// This also covers the edge case where text is empty
@@ -302,7 +309,7 @@ namespace cpps
 		return String(text.substr(start, length));
 	}
 
-	String String::Prefix(size_t length, bool blankIfOverflow = false) const noexcept
+	String String::Prefix(size_t length, bool blankIfOverflow) const noexcept
 	{
 		if (text.length() == 0 || length == 0)
 		{
@@ -328,7 +335,7 @@ namespace cpps
 		}
 	}
 
-	String String::Suffix(size_t length, bool blankIfOverflow = false) const noexcept
+	String String::Suffix(size_t length, bool blankIfOverflow) const noexcept
 	{
 		if (text.length() == 0 || length == 0)
 		{
@@ -359,17 +366,17 @@ namespace cpps
 	// =============== Synthesis Methods ===============
 	String String::Concat(const String& rhs) const noexcept
 	{
-		return String(*this).Append(rhs);
+		return String(*this + rhs);
 	}
 
 	String String::Concat(std::string_view rtext) const noexcept
 	{
-		return String(*this).Append(rtext);
+		return String(*this + rtext);
 	}
 
 	String String::Concat(char symbol) const noexcept
 	{
-		return String(text).Append(symbol);
+		return String(text + symbol);
 	}
 
 
@@ -396,19 +403,20 @@ namespace cpps
 
 	String& String::Prepend(const String& rhs) noexcept
 	{
-		text = String(rhs).Append(text);
+		text.insert(0, rhs.text);
 		return *this;
 	}
 
 	String& String::Prepend(std::string_view rtext) noexcept
 	{
-		text = String(rtext).Append(text);
+		text.insert(0, rtext);
 		return *this;
 	}
 
 	String& String::Prepend(char symbol) noexcept
 	{
-		String(symbol) += text;
+		text.insert(0, string{ symbol });
+		return *this;
 	}
 
 
@@ -460,7 +468,7 @@ namespace cpps
 	void String::TrimEnd() noexcept
 	{ }
 
-	void String::PadStart(size_t n, char pad = ' ')
+	void String::PadStart(size_t n, char pad)
 	{
 		if (text.length() < n)
 		{
@@ -468,7 +476,7 @@ namespace cpps
 		}
 	}
 
-	void String::PadEnd(size_t n, char pad = ' ')
+	void String::PadEnd(size_t n, char pad)
 	{
 		if (text.length() < n)
 		{
@@ -495,6 +503,26 @@ namespace cpps
 		return static_cast<int>(target);
 	}
 
-	LexiCompare String::Compare(std::string_view left, std::string_view right) { }
+	LexiCompare String::Compare(std::string_view left, std::string_view right) {
+		// Remember: this comparison is typical LEFT TO RIGHT binary
+		// e.g. "apple", "coconut" returns LexiCompare::Before
 
+		// Quick return for identical strings
+		if (left == right) { return LexiCompare::Same; }
+
+		// Iterate only as long as the shorter string. end = the shorter length.
+		size_t end = std::min(left.length(), right.length());
+		for (size_t i = 0; i < end; ++i)
+		{
+			// Immediately end when a char mismatch occurs
+			if (left[i] > right[i]) { return LexiCompare::After; }
+			if (right[i] > left[i]) { return LexiCompare::Before; }
+		}
+
+		// We already checked for the identical case
+		// So at this point, clearly one string is a prefix of the other.
+		// Therefore, the shorter string is lexically first.
+		// Just compare to the end var to identify the shorter string.
+		return (left.length() == end) ? LexiCompare::Before : LexiCompare::After;
+	}
 }

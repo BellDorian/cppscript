@@ -76,7 +76,8 @@ namespace cpps
 		 */
 		explicit String(std::string&& text) noexcept;
 
-
+		/// @brief Destructor.
+		~String();
 
 		// =============== Operator Overloads =================
 
@@ -164,7 +165,7 @@ namespace cpps
 		 * @param index the index of the desired character
 		 * @returns the char at the index
 		 */
-		char& operator[](size_t index);
+		char& operator[](size_t index) noexcept;
 
 		/**
 		 * Overloaded [] for char access.
@@ -173,7 +174,7 @@ namespace cpps
 		 * @param index the index of the desired character
 		 * @returns a copy of the char at the index
 		 */
-		char operator[](size_t index) const;
+		char operator[](size_t index) const noexcept;
 
 
 		/**
@@ -315,7 +316,7 @@ namespace cpps
 		 * @param target the character to look for
 		 * @returns true if the target exists in this String.
 		 */
-		constexpr bool Includes(char target) const;
+		bool Includes(char target) const noexcept;
 
 		/**
 		 * Determines if this String begins with the given prefix.
@@ -325,14 +326,14 @@ namespace cpps
 		 * @param prefix The potential prefix of the String
 		 * @returns true if this String begins with the same chars as prefix.
 		 */
-		constexpr bool StartsWith(std::string_view prefix) const noexcept;
+		bool StartsWith(std::string_view prefix) const noexcept;
 
 		/**
 		 *  Determines if this String ends with the given suffix.
 		 *
 		 * @note Example: "ld!" is a valid suffix of "Hello World!".
 		 */
-		constexpr bool EndsWith(std::string_view suffix) const noexcept;
+		bool EndsWith(std::string_view suffix) const noexcept;
 
 
 
@@ -637,14 +638,21 @@ namespace cpps
 		static constexpr int Asc(char target);
 
 		/**
-		 * Does a lexical compare between this String and rhs.
-		 * This String is either lexically before, after, or the same as rhs.
+		 * Determines whether the left string is lexically before, after, or the same as the right string.
 		 *
-		 * @note The comparison is relative to THIS String.
-		 * @note "abc" --> "cba"
-		 * @return 1 = comes after, 0 = same, -1 = comes before
+		 *  e.g. Compare("dorian", "belljr")  → After
+		 *
+		 *  e.g. Compare("clean", "code")     → Before
+		 *
+		 * @note The comparison is LEFT TO RIGHT, like a typical binary comparison.
+		 * @note If one string is a prefix of the other, the shorter string comes first.
+		 *
+		 * @param left  The string to compare.
+		 * @param right The string to compare against.
+		 * @returns The lexical position of `left` relative to `right`: Before, After, or Same.
 		 */
 		static LexiCompare Compare(std::string_view left, std::string_view right);
+
 	};
 }
 

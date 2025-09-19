@@ -65,3 +65,14 @@ if(BUILD_TESTING)
         gtest_discover_tests(${TEST_NAME})
     endforeach()
 endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/sandbox/main.cpp")
+    add_subdirectory(sandbox)
+endif()
+
+add_custom_target(use_sandbox
+    COMMAND sandbox          # runs the executable
+    DEPENDS sandbox          # builds sandbox first if needed
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Building and running sandbox..."
+)
