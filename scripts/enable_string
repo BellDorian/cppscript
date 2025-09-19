@@ -1,20 +1,24 @@
-#!/bin/bash
-# This is the default script file, which should help users run the right script to enable String.
+#!/usr/bin/env bash
+set -e
 
-# Detect environment and call corresponding script
-if command -v bash >/dev/null 2>&1; then
-    echo "Running enable_string.sh..."
-    ./scripts/enable_string.sh "$@"
-elif command -v node >/dev/null 2>&1; then
-    echo "Detected Node.js, running enable_string.js..."
-    node ./scripts/enable_string.js "$@"
-elif command -v pwsh >/dev/null 2>&1; then
-    echo "Detected PowerShell Core, running enable_string.ps1..."
-    pwsh ./scripts/enable_string.ps1 "$@"
-elif command -v powershell >/dev/null 2>&1; then
-    echo "Detected Windows PowerShell, running enable_string.ps1..."
-    powershell -File ./scripts/enable_string.ps1 "$@"
-else
-    echo "No supported script runtime found."
-    exit 1
-fi
+BUILD_DIR="build"
+INSTALL_DIR="$BUILD_DIR/install"
+
+mkdir -p "$BUILD_DIR"
+cd "$BUILD_DIR"
+
+# Configure, build, and install
+cmake .. -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
+cmake --build . --config Release
+cmake --install . --config Release
+
+echo
+echo "========================="
+echo "C-Script (cpps) build & install complete!"
+echo
+echo "Include path for headers: $INSTALL_DIR/include"
+echo "Library path for linking:  $INSTALL_DIR/lib"
+echo
+echo "Example usage with g++:"
+echo "g++ -std=c++20 -I $INSTALL_DIR/include -L $INSTALL_DIR/lib -lcpps your_main.cpp -o your_app"
+echo "========================="
