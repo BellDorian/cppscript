@@ -5,8 +5,8 @@
 
 namespace cpps::detail::alias
 {
-	// Std types
-	//using string = std::string;
+	// std namespace types
+	using string = std::string;
 	using view = std::string_view;
 	using size_t = std::size_t;
 	using diff_t = std::ptrdiff_t;
