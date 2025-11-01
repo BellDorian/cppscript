@@ -7,7 +7,8 @@ message(STATUS "Adding source: ${CMAKE_CURRENT_SOURCE_DIR}/src/String.cpp")
 
 # ========== Main Library ===========
 add_library(cpps 
-	src/String.cpp
+	src/Natural.cpp
+	#src/String.cpp
     # src/Array.cpp       # for explicit template instantiations
     # src/Queue.cpp   	  # for explicit instantiations
 )
